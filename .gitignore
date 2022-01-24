@@ -1,3 +1,8 @@
 /target
 /.env
+/dist
+Cargo.lock
+.apitoken
+/.test
+/wheels
 
