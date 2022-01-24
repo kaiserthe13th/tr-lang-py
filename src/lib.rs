@@ -1,3 +1,4 @@
+use pyo3::basic::PyObjectProtocol;
 use pyo3::types::PyBytes;
 use pyo3::wrap_pymodule;
 use tr_lang::Lexer as TrLexer;
@@ -23,7 +24,7 @@ impl Lexer {
             inner: TrLexer::new(source)
         }
     }
-    
+
     fn tokenize(mut self_: PyRefMut<Self>, file: Option<String>) -> Vec<LexerToken> {
         //! Tokenize the tr-lang source code
         self_.inner.tokenize(&mut vec![], file.unwrap_or("<python>".to_string()))
@@ -98,6 +99,16 @@ pub struct LexerToken {
     inner: token::LexerToken,
 }
 
+#[pyproto]
+impl <'a>PyObjectProtocol<'a> for LexerToken {
+    fn __str__(&self) -> PyResult<String> {
+        Ok(format!("{:?}", self.inner))
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("{:?}", self.inner))
+    }
+}
+
 impl Into<token::LexerToken> for LexerToken {
     fn into(self) -> token::LexerToken {
         self.inner
@@ -116,6 +127,16 @@ pub struct ParserToken {
     inner: token::ParserToken,
 }
 
+#[pyproto]
+impl <'a>PyObjectProtocol<'a> for ParserToken {
+    fn __str__(&self) -> PyResult<String> {
+        Ok(format!("{:?}", self.inner))
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("{:?}", self.inner))
+    }
+}
+
 impl Into<token::ParserToken> for ParserToken {
     fn into(self) -> token::ParserToken {
         self.inner
@@ -128,7 +149,7 @@ impl From<token::ParserToken> for ParserToken {
     }
 }
 
-impl ParserToken { 
+impl ParserToken {
     pub fn inner(&self) -> token::ParserToken {
         self.inner.clone()
     }
@@ -137,12 +158,12 @@ impl ParserToken {
 #[pymodule]
 fn bytecode(_py: Python, m: &PyModule) -> PyResult<()> {
     use tr_lang::bytecode;
-    
+
     #[pyfunction]
-    fn to_bytes<'a>(py: Python<'a>, tokens: &'a PyBytes) -> PyResult<&'a PyBytes> {
+    fn to_bytes<'a>(py: Python<'a>, tokens: Vec<ParserToken>) -> PyResult<&'a PyBytes> {
         Ok(PyBytes::new(py,
             &bytecode::to_bytecode(
-                tokens.extract::<Vec<ParserToken>>()?
+                tokens
                     .iter()
                     .map(|a| a.inner())
                     .collect()
