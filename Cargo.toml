@@ -1,12 +1,13 @@
 [package]
 name = "tr-lang-py"
-version = "0.1.4"
+version = "0.2.0"
 edition = "2021"
 readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[dependencies]
-tr-lang = { git = "https://github.com/kaiserthe13th/tr-lang" }
+[dependencies.tr-lang]
+git = "https://github.com/kaiserthe13th/tr-lang"
+rev = "2f23ca7"
 
 [dependencies.pyo3]
 version = "0.15.1"
@@ -15,3 +16,4 @@ features = ["extension-module"]
 [lib]
 name = "tr_lang"
 crate-type = ["cdylib"]
+
